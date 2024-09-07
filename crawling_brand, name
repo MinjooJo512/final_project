@@ -1,0 +1,26 @@
+# 각 링크 브랜드명, 상품명 크롤링
+brand_list = []
+name_list = []
+
+for i in range(200):    
+    driver = webdriver.Chrome()  # httpconnectionpool(host='localhost', port=53549): max retries exceeded with URL in requests 에러 => 새로 웹드라이버 받기
+    driver.implicitly_wait(3)
+    
+    driver.get(df['URL'].iloc[i])
+    time.sleep(1)
+    
+    html = driver.page_source    # 동적 크롤링하려면, 새로 페이지소스 받아야함
+    soup = BeautifulSoup(html, 'lxml')
+    time.sleep(1)
+    
+    brand = driver.find_element(By.CSS_SELECTOR, 'div.sc-11x022e-0 div.sc-11x022e-2 span.text-sm').text
+    name = driver.find_element(By.CSS_SELECTOR, 'div.pt-1 span.text-lg').text
+    time.sleep(1)
+    brand_list.append(brand)
+    name_list.append(name)
+    # outer_df.loc[i, 'name'] = name   # 이렇게 하면, 맨 마지막 행만 출력됨 -> 리스트 만들어서 append한 후에 데이터프레임에 추가
+    driver.quit()
+
+outer_df = pd.DataFrame({"brand": brand_list, "name" : name_list})
+outer_df.to_csv('outer.csv', index=False)
+outer_df
