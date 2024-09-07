@@ -1,0 +1,44 @@
+import selenium
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException 
+import pandas as pd
+from bs4 import BeautifulSoup
+import requests
+from itertools import repeat
+import re
+import csv
+
+# 무신사 아우터 상품별 링크 크롤링 (랭킹 - 전체 - 아우터)
+url = "https://www.musinsa.com/main/musinsa/ranking?storeCode=musinsa&sectionId=199&categoryCode=002000&period=MONTHLY"
+
+driver = webdriver.Chrome()
+driver.get(url)
+
+i = 0
+
+try:
+    articles = WebDriverWait(driver, 30).until(
+        EC.presence_of_all_elements_located((By.TAG_NAME, "article"))
+    )
+
+    product_urls = []
+    
+    for article in articles:
+        a_tags = article.find_elements(By.TAG_NAME, 'a')
+        for a_tag in a_tags:
+            if i%2 == 1:   # a 태그가 2개 나와서 두번째꺼만 가져오기
+                product_url = a_tag.get_attribute('href')
+                if product_url and '/app/goods' in product_url:
+                    product_urls.append(product_url)
+            i += 1
+
+finally:
+    driver.quit()
